@@ -62,6 +62,10 @@ Open the local URL printed by Vite in your terminal.
 
 There is currently no test script configured in `package.json`.
 
+### Tests
+
+Install the test dependencies with `npm install --save-dev vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom`, then run `npm test`. Use `npm run test:watch` while developing. The suite currently covers event record validation and the event registration, calculation, and local-storage persistence workflow.
+
 ## Deploy to Firebase Hosting
 
 Firebase Hosting serves the Vite production build from `dist/`. The Hosting rewrite sends application routes to `index.html`, so client-side navigation continues to work after refresh.
