@@ -1,6 +1,4 @@
 import { useMemo, useRef, useState } from 'react'
-import html2canvas from 'html2canvas-pro'
-import { jsPDF } from 'jspdf'
 import {
   Area,
   AreaChart,
@@ -249,6 +247,10 @@ const RechartsController = ({ events, exportDescription, fileSuffix }: RechartsC
     setIsExporting(true)
     setNotice('Generando PDF…')
     try {
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import('html2canvas-pro'),
+        import('jspdf'),
+      ])
       await document.fonts.ready
       const canvas = await html2canvas(report, {
         backgroundColor: '#EBF1F5',
