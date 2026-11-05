@@ -221,6 +221,10 @@ const RechartsController = ({ events, exportDescription, fileSuffix }: RechartsC
       profitLabel: formatAmount(profit),
     })).sort((first, second) => first.title.localeCompare(second.title))
   }, [chartData])
+  const profitTimelineData = useMemo(
+    () => [...chartData].sort((first, second) => first.date.localeCompare(second.date)),
+    [chartData],
+  )
   const reportSummary = useMemo(() => {
     const revenue = chartData.reduce((sum, event) => sum + event.revenue, 0)
     const investment = chartData.reduce((sum, event) => sum + event.investment, 0)
@@ -335,6 +339,24 @@ const RechartsController = ({ events, exportDescription, fileSuffix }: RechartsC
             <div className="rounded border-2 border-[#F5D9D9] p-4"><p className="text-sm">ROI agregado</p><p className="mt-1 text-lg font-bold">{formatPercent(reportSummary.roi)}</p></div>
             <div className="rounded border-2 border-[#F5D9D9] p-4"><p className="text-sm">Margen agregado</p><p className="mt-1 text-lg font-bold">{formatPercent(reportSummary.margin)}</p></div>
           </div>
+        </section>
+
+        <section data-pdf-keep-together style={{ breakInside: 'avoid' }} className="mb-8">
+          <h2 className="mb-3 text-xl font-bold">Ingresos en el tiempo</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={profitTimelineData} margin={{ top: 16, right: 24, left: 24, bottom: 32 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" interval={0} tickFormatter={(value: string) => formatDate(value)} angle={-32} textAnchor="end" height={60} />
+              <YAxis tickFormatter={(value: number) => formatAmount(value)} />
+              <Tooltip
+                labelFormatter={(label: string | number) => formatDate(String(label))}
+                formatter={(value: number) => [formatAmount(value), 'Ingresos']}
+              />
+              <Line type="monotone" dataKey="profit" name="Ingresos" stroke="#416B82" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }}>
+                <LabelList dataKey="profit" position="top" formatter={(value: number) => formatAmount(value)} />
+              </Line>
+            </LineChart>
+          </ResponsiveContainer>
         </section>
 
         {yearlyProfitData.length > 1 && <section data-pdf-keep-together style={{ breakInside: 'avoid' }} className="mb-8">

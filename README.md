@@ -1,76 +1,93 @@
-# React + TypeScript + Vite
+# Economic Events Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Economic Events Manager is a browser-based tool for recording the financial and operational results of fundraising and other group-run economic events. It helps organizers maintain a consistent record of each event, understand its financial performance relative to costs and effort, and compare results over time.
 
-Currently, two official plugins are available:
+The app is currently a client-side React application. It saves records in the current browser's `localStorage`; there is no server, account system, or cross-device synchronization. The interface and number/date formatting are in Spanish (`es-AR`).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## What the app does
 
-## React Compiler
+- **Record and maintain events.** Add, edit, and delete events. Each record includes its name, category, date, sales modality (pre-sale or direct sale), revenue, investment, group and seller counts, preparation and selling days, and person-days of work. Categories can be created as needed.
+- **Review event performance.** Each event shows its net profit, ROI, profit margin, participation rate, average sales per seller, and profit per person-day. It also provides category-average profit and comparisons with the previous event in the category and the immediately preceding event in the filtered list.
+- **Explore annual results.** Select a year to see event count, total revenue and investment, net profit, average profit per event, aggregate ROI, and aggregate profit margin.
+- **Filter and export records.** Filter by year, date range, category, or selected events. Download matching records as JSON or create a PDF report with summary totals, charts, and event details. ROI and margin charts support bar, line, and area styles.
+- **Keep portable backups.** Import a JSON list of event records. Import merges by ID: matching IDs are updated and new IDs are added. Export JSON regularly if you need a backup or want to move data between browsers.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## Metrics
 
-Note: This will impact Vite dev & build performances.
-You can also try [the experimental native React Compiler support in plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md#rust-react-compiler) by using `compiler: true` in the plugin options instead of using the Babel plugin.
+The app calculates metrics from the values entered for each event:
 
-## Expanding the ESLint configuration
+| Metric                   | Calculation                                |
+| ------------------------ | ------------------------------------------ |
+| Net profit               | Revenue − investment                       |
+| ROI                      | Net profit ÷ investment × 100              |
+| Profit margin            | Net profit ÷ revenue × 100                 |
+| Participation rate       | Active sellers ÷ total group members × 100 |
+| Average sales per seller | Revenue ÷ active sellers                   |
+| Profit per person-day    | Net profit ÷ person-days worked            |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Annual ROI and margin are aggregated from the year's total profit, investment, and revenue—not averaged from individual event percentages. When a metric's denominator is zero, the app displays it as unavailable rather than dividing by zero. Monetary amounts are formatted using the `es-AR` locale; the app does not assign or convert a currency.
 
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
+## Tech stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- React 19 and TypeScript
+- Vite 8 for local development and production builds
+- Tailwind CSS 4 for styling
+- Recharts for report charts
+- `jspdf` and `html2canvas-pro` for PDF generation
+- ESLint for linting
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+## Getting started
+
+### Requirements
+
+- Node.js and npm (use a Node.js release supported by the installed Vite version)
+
+### Install and run
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Open the local URL printed by Vite in your terminal.
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
+### Available scripts
 
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+| Command           | Purpose                                                                          |
+| ----------------- | -------------------------------------------------------------------------------- |
+| `npm run dev`     | Start the Vite development server with hot module replacement.                   |
+| `npm run build`   | Type-check the project and create the production build in `dist/`.               |
+| `npm run lint`    | Run ESLint across the project.                                                   |
+| `npm run preview` | Serve the built production app locally for a preview. Run `npm run build` first. |
+
+There is currently no test script configured in `package.json`.
+
+## Project structure
+
+```text
+src/
+  App.tsx                     Application state, persistence, validation, and annual calculations
+  types.ts                    Event data types and imported-record validation
+  components/
+    RegistryEvent.tsx         Event create/edit form
+    AnaliticsResume.tsx       Event list, filters, and per-event indicators
+    AnualAnalitics.tsx        Year selector and annual summary
+    Navbar/
+      Navbar.tsx              Data management and export controls
+      Filter.tsx              Selection filters used by JSON and PDF exports
+      RechartsPDF.tsx          Charts and PDF report generation
 ```
+
+## Data and privacy
+
+Event records stay in the browser's local storage on the device and browser where they were entered. Clearing browser site data, changing browsers, or using another device can make those records unavailable. Use JSON export for backups and transfer; importing a backup validates the record shape and merges it by event ID. The app does not send event data to a backend.
+
+The JSON record shape is defined by the `EventRecord` type and runtime validator in `src/types.ts`. A record contains an ID, title, category, modality, `YYYY-MM-DD` date, timestamps, and an `inputs` object with the financial, participation, and effort values. Derived analytics are calculated from those inputs rather than persisted as event fields.
+
+## Contribution notes
+
+- Keep derived indicators consistent with the formulas above and handle zero denominators explicitly.
+- Preserve the `EventRecord` shape and update both the TypeScript type and runtime validation when changing importable data.
+- Keep storage and import/export behavior clear: local data is browser-specific, and imports merge by ID.
+- The visible product copy is Spanish. When changing user-facing text, keep its language and terminology consistent unless localization is part of the change.
+- Before opening a change, run `npm run lint` and `npm run build`.
