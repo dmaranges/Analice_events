@@ -62,6 +62,29 @@ Open the local URL printed by Vite in your terminal.
 
 There is currently no test script configured in `package.json`.
 
+## Deploy to Firebase Hosting
+
+Firebase Hosting serves the Vite production build from `dist/`. The Hosting rewrite sends application routes to `index.html`, so client-side navigation continues to work after refresh.
+
+### One-time setup
+
+1. Install Node.js 22 and npm.
+2. Install the Firebase CLI: `npm install -g firebase-tools`.
+3. Sign in with an account that can deploy to the Firebase project: `firebase login`.
+4. Confirm the Firebase project `analiceevents` is available to that account and Hosting is enabled for it. The selected default project is recorded in `.firebaserc`.
+
+### Local verification and deployment
+
+- `npm ci` installs the locked project dependencies.
+- `npm run build` type-checks and creates the production site in `dist/`.
+- `npm run preview` previews the production Vite build locally.
+- `npm run firebase:serve` builds the app and runs it in the Firebase Hosting emulator.
+- `npm run firebase:deploy` builds and deploys only Hosting to `analiceevents`.
+
+GitHub Actions also deploys on pushes to `master` and creates preview deployments for pull requests. Add the Firebase service-account JSON as the repository Actions secret `FIREBASE_SERVICE_ACCOUNT_ANALICEEVENTS`; the workflows already target project `analiceevents` and use Node.js 22.
+
+Deploying to Hosting does not move event records to Firebase: the current app stores them in each browser's `localStorage`, so they are not shared across browsers or devices.
+
 ## Project structure
 
 ```text
