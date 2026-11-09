@@ -30,6 +30,8 @@ type ChartDatum = {
   date: string
   revenue: number
   investment: number
+  totalGroupMembers: number
+  activeSellersCount: number
   profit: number
   roi: number | null
   margin: number | null
@@ -183,6 +185,8 @@ const RechartsController = ({ events, exportDescription, fileSuffix }: RechartsC
       date: event.date,
       revenue: event.inputs.totalRevenue,
       investment: event.inputs.totalInvestment,
+      totalGroupMembers: event.inputs.totalGroupMembers,
+      activeSellersCount: event.inputs.activeSellersCount,
       profit,
       roi,
       margin,
@@ -208,6 +212,8 @@ const RechartsController = ({ events, exportDescription, fileSuffix }: RechartsC
       date: '',
       revenue: 0,
       investment: 0,
+      totalGroupMembers: 0,
+      activeSellersCount: 0,
       profit,
       roi: null,
       margin: null,
@@ -220,6 +226,10 @@ const RechartsController = ({ events, exportDescription, fileSuffix }: RechartsC
     })).sort((first, second) => first.title.localeCompare(second.title))
   }, [chartData])
   const profitTimelineData = useMemo(
+    () => [...chartData].sort((first, second) => first.date.localeCompare(second.date)),
+    [chartData],
+  )
+  const membersTimelineData = useMemo(
     () => [...chartData].sort((first, second) => first.date.localeCompare(second.date)),
     [chartData],
   )
@@ -361,6 +371,27 @@ const RechartsController = ({ events, exportDescription, fileSuffix }: RechartsC
           </ResponsiveContainer>
         </section>
 
+        <section data-pdf-keep-together style={{ breakInside: 'avoid' }} className="mb-8">
+          <h2 className="mb-3 text-xl font-bold">Participación en el tiempo</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={membersTimelineData} margin={{ top: 16, right: 24, left: 24, bottom: 32 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" interval={0} tickFormatter={(value: string) => formatDate(value)} angle={-32} textAnchor="end" height={60} />
+              <YAxis tickFormatter={(value: number) => formatAmount(value)} />
+              <Tooltip
+                labelFormatter={(label: string | number) => formatDate(String(label))}
+                formatter={(value: number, name: string) => [String(value), name]}
+              />
+              <Line type="monotone" dataKey="totalGroupMembers" name="Integrantes del grupo" stroke="#416B82" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }}>
+                <LabelList dataKey="totalGroupMembers" position="top" formatter={(value: number) => String(value)} />
+              </Line>
+              <Line type="monotone" dataKey="activeSellersCount" name="Vendedores activos" stroke="#C46B82" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }}>
+                <LabelList dataKey="activeSellersCount" position="bottom" formatter={(value: number) => String(value)} />
+              </Line>
+            </LineChart>
+          </ResponsiveContainer>
+        </section>
+
         {yearlyProfitData.length > 1 && <section data-pdf-keep-together style={{ breakInside: 'avoid' }} className="mb-8">
           <h2 className="mb-3 text-xl font-bold">Ganancia neta por año</h2>
           <Graph metric="profit" graphType="bar" data={yearlyProfitData} />
@@ -390,6 +421,8 @@ const RechartsController = ({ events, exportDescription, fileSuffix }: RechartsC
                 <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
                   <dt>Ingresos</dt><dd>{formatAmount(event.revenue)}</dd>
                   <dt>Inversión</dt><dd>{formatAmount(event.investment)}</dd>
+                  <dt>Integrantes del grupo</dt><dd>{event.totalGroupMembers}</dd>
+                  <dt>Vendedores activos</dt><dd>{event.activeSellersCount}</dd>
                   <dt>Ganancia neta</dt><dd>{formatAmount(event.profit)}</dd>
                   <dt>ROI</dt><dd>{formatPercent(event.roi)}</dd>
                   <dt>Margen</dt><dd>{formatPercent(event.margin)}</dd>
