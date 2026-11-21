@@ -24,8 +24,35 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Show environment information
+        run: |
+          echo "Node: $(node --version)"
+          echo "npm: $(npm --version)"
+          echo "Runner: $RUNNER_OS"
+          echo "Commit: $GITHUB_SHA"
+
       - name: Install dependencies
-        run: npm ci
+        run: |
+          echo "Installing dependencies with npm ci"
+          npm ci
+          echo "Prettier: $(npx prettier --version)"
+
+      - name: Show formatting configuration
+        run: |
+          echo "Checking repository formatting configuration"
+          find src -type f \( -name '*.ts' -o -name '*.tsx' \) -print | sort
+          echo "Prettier configuration:"
+          npx prettier --find-config-path src/main.tsx
 
       - name: Check TypeScript and TSX formatting
-        run: npm run format:check
+        run: |
+          echo "Running npm run format:check"
+          npm run format:check
+
+      - name: Show formatting failure details
+        if: failure()
+        run: |
+          echo "Formatting check failed"
+          echo "Files that Prettier considers different should be listed above"
+          git diff --stat || true
+          git diff || true
