@@ -60,7 +60,8 @@ export const isEventRecord = (value: unknown): value is EventRecord => {
     record.id.length > 0 &&
     typeof record.title === 'string' &&
     typeof record.type === 'string' &&
-    (record.modalidad === 'Pre-venta' || record.modalidad === 'Venta Directa') &&
+    (record.modalidad === 'Pre-venta' ||
+      record.modalidad === 'Venta Directa') &&
     typeof record.date === 'string' &&
     /^\d{4}-\d{2}-\d{2}$/.test(record.date) &&
     typeof record.createdAt === 'string' &&

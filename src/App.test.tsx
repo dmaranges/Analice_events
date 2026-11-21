@@ -10,11 +10,19 @@ vi.mock('./components/Navbar/Navbar', () => ({
 
 const STORAGE_KEY = 'analice-events.records.v1'
 
-const fillEventForm = async (user: ReturnType<typeof userEvent.setup>, title: string) => {
+const fillEventForm = async (
+  user: ReturnType<typeof userEvent.setup>,
+  title: string,
+) => {
   await user.type(screen.getByLabelText(/Nombre del evento/), title)
-  await user.selectOptions(screen.getByLabelText(/Tipo \/ categoría/), '__custom_category__')
+  await user.selectOptions(
+    screen.getByLabelText(/Tipo \/ categoría/),
+    '__custom_category__',
+  )
   await user.type(screen.getByLabelText(/Nuevo tipo \/ categoría/), 'Feria')
-  fireEvent.change(screen.getByLabelText(/Fecha del evento/), { target: { value: '2026-03-15' } })
+  fireEvent.change(screen.getByLabelText(/Fecha del evento/), {
+    target: { value: '2026-03-15' },
+  })
   await user.type(screen.getByLabelText(/Inversión total/), '40')
   await user.type(screen.getByLabelText(/Ingresos totales/), '100')
   await user.type(screen.getByLabelText(/Integrantes totales/), '10')
@@ -36,8 +44,12 @@ describe('event registration workflow', () => {
     await fillEventForm(user, 'Festival')
     await user.click(screen.getByRole('button', { name: 'Guardar evento' }))
 
-    expect(await screen.findByRole('heading', { name: 'Festival' })).toBeInTheDocument()
-    const savedEvents = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? '[]') as EventRecord[]
+    expect(
+      await screen.findByRole('heading', { name: 'Festival' }),
+    ).toBeInTheDocument()
+    const savedEvents = JSON.parse(
+      window.localStorage.getItem(STORAGE_KEY) ?? '[]',
+    ) as EventRecord[]
     expect(savedEvents).toHaveLength(1)
     expect(savedEvents[0]).toMatchObject({
       title: 'Festival',
@@ -45,15 +57,23 @@ describe('event registration workflow', () => {
       inputs: { totalRevenue: 100, totalInvestment: 40 },
     })
 
-    const eventCard = screen.getByRole('heading', { name: 'Festival' }).closest('article')
+    const eventCard = screen
+      .getByRole('heading', { name: 'Festival' })
+      .closest('article')
     expect(eventCard).not.toBeNull()
-    const profitMetric = within(eventCard as HTMLElement).getByText('Ganancia neta').parentElement
+    const profitMetric = within(eventCard as HTMLElement).getByText(
+      'Ganancia neta',
+    ).parentElement
     expect(profitMetric).not.toBeNull()
-    expect(within(profitMetric as HTMLElement).getByText('60,00')).toBeInTheDocument()
+    expect(
+      within(profitMetric as HTMLElement).getByText('60,00'),
+    ).toBeInTheDocument()
 
     firstRender.unmount()
     render(<App />)
-    expect(await screen.findByRole('heading', { name: 'Festival' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: 'Festival' }),
+    ).toBeInTheDocument()
   })
 
   it('blocks saving when active sellers exceed total group members', async () => {
@@ -67,7 +87,9 @@ describe('event registration workflow', () => {
 
     await user.click(screen.getByRole('button', { name: 'Guardar evento' }))
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Revisá los campos indicados antes de guardar.')
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Revisá los campos indicados antes de guardar.',
+    )
     expect(window.localStorage.getItem(STORAGE_KEY)).toBeNull()
   })
 })

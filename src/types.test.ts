@@ -29,11 +29,17 @@ describe('isEventRecord', () => {
   it.each([
     ['a non-object value', null],
     ['a malformed date', { ...validEvent, date: '15/03/2026' }],
-    ['negative revenue', { ...validEvent, inputs: { ...validEvent.inputs, totalRevenue: -1 } }],
-    ['more sellers than group members', {
-      ...validEvent,
-      inputs: { ...validEvent.inputs, activeSellersCount: 11 },
-    }],
+    [
+      'negative revenue',
+      { ...validEvent, inputs: { ...validEvent.inputs, totalRevenue: -1 } },
+    ],
+    [
+      'more sellers than group members',
+      {
+        ...validEvent,
+        inputs: { ...validEvent.inputs, activeSellersCount: 11 },
+      },
+    ],
   ])('rejects %s', (_description, value) => {
     expect(isEventRecord(value)).toBe(false)
   })
